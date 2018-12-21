@@ -1,0 +1,11 @@
+{
+  "port": 1088,
+  "inbound": {
+    "protocol": "socks",
+    "file": "config/in_socks.json"
+  },
+  "outbound": {
+    "protocol": "freedom",
+    "file": ""
+  }
+}
