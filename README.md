@@ -10,7 +10,7 @@ OneWay 是一个翻墙工具包，用于简化和复用其它翻墙工具，加�
 ## 联系方式
 公开的建议或意见请发 [Issue](https://github.com/cnsimo/OneWay-Core/issues)，发 Issue 之前请先阅读 [Issue 指引](https://github.com/cnsimo/OneWay-Core/blob/master/desc/issue.md)。
 
-私下联系：[电报](https://tg.me/techliu)   [博客](https://scriptboy.cn)
+私下联系：[电报](https://t.me/techliu)   [博客](https://scriptboy.cn)
 
 ## 合作机会
 所有被标记为“[Help Wanted](https://github.com/cnsimo/OneWay-Core/labels/help%20wanted)”的 Issue 都接受 Pull Request，如果你对本项目感兴趣并想做点贡献，请挑选其中之一完善之，不甚感激。
