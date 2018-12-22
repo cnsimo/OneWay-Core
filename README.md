@@ -1,6 +1,6 @@
 # Project OneWay
 
-OneWay 是一个翻墙工具包，用于简化和复用其它翻墙工具，加速二次开发, 可视为 V2Ray 的 Python 版本。
+OneWay 是一个翻墙工具包，用于简化和复用其它翻墙工具，加速二次开发, 可视为 [V2Ray](https://github.com/v2ray/v2ray-core) 的 Python 版本。
 
 ## 主要特点
 * 多对多服务器支持，负载均衡
@@ -23,7 +23,7 @@ OneWay 是一个翻墙工具包，用于简化和复用其它翻墙工具，加�
 [当前状态](https://github.com/cnsimo/OneWay-Core/blob/master/desc/status.md)：Version 0.1 Alpha，[安装方式](https://github.com/cnsimo/OneWay-Core/blob/master/desc/install.md)。功能只实现部分，暂不可用。
 
 ## 捐赠
-请捐给 Project V.
+请捐给 [Project V](https://www.v2ray.com/).
 
 ## 关于
 我只是一名普通的学生，喜欢研究 身份隐匿，同时也是 V2Ray 用户，想要通过此项目能够更加深入了解它。
