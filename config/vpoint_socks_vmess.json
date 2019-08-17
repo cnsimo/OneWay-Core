@@ -5,7 +5,7 @@
     "file": "config/in_socks.json"
   },
   "outbound": {
-    "protocol": "freedom",
-    "file": ""
+    "protocol": "vmess",
+    "file": "config/out_vmess.json"
   }
 }

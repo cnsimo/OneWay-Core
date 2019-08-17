@@ -26,8 +26,9 @@ import net as ownet
 from net_io import socks as socksio
 from socketserver import ThreadingMixIn, TCPServer, StreamRequestHandler
 import socket
+import threading
 import logging
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M')
 
@@ -55,10 +56,8 @@ class Socks5RequestHandler(StreamRequestHandler):
 
     def handle(self):
         logger.info('Socks connection from %s' % ownet.Address(*self.client_address))
+        client = self.connection
         try:
-            client = self.connection
-
-
             auth_request, err = socksio.read_socks5_authentication_request(client)
             if err is not None:
                 logger.error(err)
@@ -89,7 +88,8 @@ class Socks5RequestHandler(StreamRequestHandler):
                     self.server.close_request(client)
                     return
                 status = 0
-                # logger.debug(self.server.config.username, self.server.config.password, user_pass_request.username, user_pass_request.password)
+                logger.debug('Config-User: ' + self.server.config.username + '  Config-Pass: ' + self.server.config.password)
+                logger.debug('Request-User: ' + user_pass_request.username + '  Request-Pass: ' + user_pass_request.password)
                 if not user_pass_request.is_valid(self.server.config.username, self.server.config.password):
                     status = 0xff
                 user_pass_response = socksio.Socks5UserPassResponse(status)
@@ -139,8 +139,16 @@ class Socks5RequestHandler(StreamRequestHandler):
                 socksio.write_response(client, response)
 
             if response.reply == socksio.REPLY_SUCCESS and request.command == socksio.CMD_CONNECT:
-                logger.debug('Into handle_tcp function.')
-                self.server.point.new_inbound_connection_accepted(r_addr, client)
+                way = self.server.point.new_inbound_connection_accepted(r_addr)
+                ipt_queue = way.inbound_input()
+                opt_queue = way.inbound_output()
+
+                ipt_thread = threading.Thread(target=self.dump_input, args=(client, ipt_queue), name="Socks5DumpInputThread")
+                opt_thread = threading.Thread(target=self.dump_output, args=(client, opt_queue), name="Socks5DumpOutputThread")
+                ipt_thread.start()
+                opt_thread.start()
+                ipt_thread.join()
+                opt_thread.join()
         except socket.error:
             logger.error('Local socket error!!')
             self.server.close_request(client)
@@ -148,12 +156,22 @@ class Socks5RequestHandler(StreamRequestHandler):
             logger.error('The connection is terminated!!')
             self.server.close_request(client)
 
+    def dump_input(self, conn, ipt_q):
+        ownet.reader_to_queue(ipt_q, conn)
+        logger.debug("Socks input closed")
+        return
+
+    def dump_output(self, conn, opt_q):
+        ownet.queue_to_writer(opt_q, conn)
+        logger.debug("Socks output closed")
+        return
+
 
 class Socks5Server(ThreadingMixIn, TCPServer):
 
     def __init__(self, point, config, server_address, request_handler=Socks5RequestHandler):
         self.point = point
-        self.config = load_config(config)
+        self.config = config
         TCPServer.__init__(self, server_address, request_handler)
 
 

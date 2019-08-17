@@ -27,7 +27,7 @@ from abc import ABCMeta, abstractmethod
 from collections import defaultdict
 import socket
 import logging
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M')
 
@@ -96,17 +96,11 @@ class Point(object):
             server.allow_reuse_address = True
             server.serve_forever()
 
-    def new_inbound_connection_accepted(self, dest, sock):
-        # TODO handle connection to outbound
-        if dest.addr_type != ownet.Address.ADDR_TYPE_IPv6:
-            address_familly = socket.AF_INET
-        else:
-            address_familly = socket.AF_INET6
-        remote = socket.socket(address_familly, socket.SOCK_STREAM)
-        remote.connect(dest.sock_address)
-        way = Way(sock, remote)
+    def new_inbound_connection_accepted(self, dest):
+        way = Way()
         och = self.och_factory.create(self, self.och_config, dest)
         och.start(way)
+        return way
 
 
 class InboundConnectionHandlerFactory(metaclass=ABCMeta):

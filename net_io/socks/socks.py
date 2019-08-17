@@ -164,8 +164,8 @@ class Socks5Response(object):
     def to_bytes(self):
         if self.reply != REPLY_SUCCESS:
             self.bnd_addr = Address('0.0.0.0', 0)
-        reply = struct.pack('>BBBB', self.version, self.reply, 0x00, self.addr_type)
-        reply += self.bnd_addr.packed
+        reply = struct.pack('>BBB', self.version, self.reply, 0x00)
+        reply += self.bnd_addr.socks_packed
         return reply
 
 
@@ -182,13 +182,13 @@ def read_request(sock):
         if len(data) < 4:
             err = 'Unabled to read IPv4 address.'
             return None, err
-        req.dst_addr = socket.inet_ntoa(data)
+        req.dst_addr = socket.inet_ntop(socket.AF_INET, data)
     elif req.addr_type == Address.ADDR_TYPE_IPv6:
-        data = sock.recv(6)
-        if len(data) < 6:
+        data = sock.recv(16)
+        if len(data) < 16:
             err = 'Unabled to read IPv6 address'
             return None, err
-        req.dst_addr = socket.inet_ntoa(data)
+        req.dst_addr = socket.inet_ntop(socket.AF_INET6, data)
     elif req.addr_type == Address.ADDR_TYPE_DOMAIN:
         n_domain = ord(sock.recv(1))
         req.dst_addr = sock.recv(n_domain).decode()

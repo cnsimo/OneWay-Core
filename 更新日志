@@ -1,23 +1,53 @@
-2018.04.17 支持socks5服务
+2018.12.17 支持 socks5 服务
 	- 监听，并进行简单流量转发；
 
 TODO： 流量加密
 
-2018.04.19 增加功能
-	- 支持USER/PASS认证；
+2018.12.19 增加功能
+	- 支持 USER/PASS 认证；
 	- 日志输出
-	- IPv6地址支持，但对于域名缺少地址类型判断
+	- IPv6 地址支持，但对于域名缺少地址类型判断
 
-2018.04.20 优化代码
+2018.12.20 优化代码
 	- 将单个程序封装成为多个包；
 	- 错误捕获
-	- 支持从JSON文件读取配置
+	- 支持从 JSON 文件读取配置
 
-TODO： 构建log模块，对日志统一管控，包括存储到文件
+TODO： 构建 log 模块，对日志统一管控，包括存储到文件
 	
-2018.04.21 socks5 和 freedom 模块分离
+2018.12.21 socks5 和 freedom 模块分离
 	- 修复 USER/PASS 认证不通过的问题；
 	- 修复 ownet.Address 不能 pack 域名
-	- 直连和socks5模块分离，各模块互相独立
+	- 直连和 socks5 模块分离，各模块互相独立
 
-TODO： 模块之间的数据安全传输，当前方式为直接传递使用socket对象，可能不太好
+TODO： 模块之间的数据安全传输，当前方式为直接传递使用 socket 对象，可能不太好
+
+2019.01.07 基于时间的用户 ID Hash 生成算法
+	- 实现 int64 与 bytes 的转换（详见：owhash/hid.py int64_to_bytes）
+	- 实现 UUID 与 bytes 的转换（详见：core/cid.py UUID_to_ID）
+	- hash = HMAC(MD5, id_bytes, timestamp)
+
+TODO: hash 模块的错误处理
+
+2019.01.12 支持将 vmess 请求加密打包为字节
+	- 采用了 aes-128-cfb 加密算法
+	- 优化部分模块结构
+
+突然发现AES.new(key, mode, iv)对象虽然同时包含了 encrypt 和 decrypt ，
+但是如果都用一个对象加密解密的话，解密会失败。
+所以最好加密对象和解密对象分开。
+
+2019.01.14 完成 vmessout 模块开发
+	- 修复 Address 模块导出 sock_address 的 bug
+	- 完善 vmess 模块
+
+2019.01.20 添加 vmessin 模块
+	- 实现基于时间的用户 ID Hash 认证算法
+	- 完善 socks 模块，优化 ipv6地址解析 bug，根据官方推荐，改 inet_ntoa 为 inet_ntop
+
+刚到新的公司，事情比较多，耽搁了一个多月
+
+2019.03.10 通多队列完成各模块之间数据的安全传输
+    - 实现字节队列，相对于每一个bound都会有一个input和output两个队列
+    - inbound和outbound之间共用一组input和output，实现数据传输
+    - 称一组input和output为一个way

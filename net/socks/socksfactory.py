@@ -22,12 +22,14 @@
 
 
 import core
+from .config import *
 from .socks import Socks5Server
 
 
 class Socks5ServerFactory(core.InboundConnectionHandlerFactory):
     def create(self, point, config):
-        return Socks5Server(point, config, ('', point.port))
+        cfg = load_config(config)
+        return Socks5Server(point, cfg, ('', point.port))
 
 
 __all__ = ['Socks5ServerFactory']

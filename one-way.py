@@ -21,10 +21,10 @@
 # SOFTWARE.
 
 
-from net import socks, freedom
+from net import socks, freedom, vmess
 import core
 import logging
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M')
 
@@ -33,7 +33,9 @@ logger = logging.getLogger('core')
 
 def init():
     core.register_inbound_connection_handler_factory('socks', socks.Socks5ServerFactory())
+    core.register_inbound_connection_handler_factory('vmess', vmess.VMessInboundHandlerFactory())
     core.register_outbound_connection_handler_factory('freedom', freedom.FreedomFactory())
+    core.register_outbound_connection_handler_factory('vmess', vmess.VMessOutBoundHandlerFactory())
 
 
 def main():

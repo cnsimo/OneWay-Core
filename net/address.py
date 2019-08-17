@@ -8,7 +8,7 @@ class Address(object):
     ADDR_TYPE_DOMAIN = 0x03
 
     def __init__(self, addr, port):
-        # TODO: 检查域名\port的合法性
+        # TODO: 检查域名port的合法性
         try:
             self.addr = ipaddress.ip_address(addr)
             self.addr_type = self.ADDR_TYPE_IPv4 if self.addr.version == 4 else self.ADDR_TYPE_IPv6
@@ -17,20 +17,26 @@ class Address(object):
             self.addr_type = self.ADDR_TYPE_DOMAIN
         finally:
             self.port = int(port)
+    # TODO: packed mode, em 1,2,3 for type,addr,port
+    @property
+    def socks_packed(self):
+        if isinstance(self.addr, (ipaddress.IPv4Address, ipaddress.IPv6Address)):
+            return self.addr_type.to_bytes(1, 'big') + self.addr.packed + struct.pack('>H', self.port)
+        else:
+            return self.addr_type.to_bytes(1, 'big') + struct.pack('>B', len(self.addr)) + (self.addr if isinstance(self.addr, bytes) else self.addr.encode()) + struct.pack('>H', self.port)
 
     @property
-    def packed(self):
-        if isinstance(self.addr, (ipaddress.IPv4Address, ipaddress.IPv6Address)):
-            return self.addr.packed + struct.pack('>H', self.port)
+    def vmess_packed(self):
+        if isinstance(self.addr, ipaddress.IPv4Address):
+            return struct.pack('>H', self.port) + 0x01.to_bytes(1, 'big') + self.addr.packed
+        elif isinstance(self.addr, ipaddress.IPv6Address):
+            return struct.pack('>H', self.port) + 0x03.to_bytes(1, 'big') + self.addr.packed
         else:
-            return struct.pack('>B', len(self.addr)) + (self.addr if isinstance(self.addr, bytes) else self.addr.encode()) + struct.pack('>H', self.port)
+            return struct.pack('>H', self.port) + 0x02.to_bytes(1, 'big') + struct.pack('>B', len(self.addr)) + (self.addr if isinstance(self.addr, bytes) else self.addr.encode())
 
     @property
     def sock_address(self):
-        if self.ADDR_TYPE_IPv4 == self.addr_type == self.ADDR_TYPE_IPv6:
-            return str(self.addr), self.port
-        else:
-            return self.addr, self.port
+        return str(self.addr), self.port
 
     def is_ipv4(self):
         return self.addr_type == Address.ADDR_TYPE_IPv4
